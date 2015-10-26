@@ -1,6 +1,6 @@
-![RestaurangOnline Logo](http://restaurangonline.se/images/ro-whiteTopLogo.png)
+![RestaurangOnline Logo](http://restaurangonline.se/css/img/logo.png)
 -------------------------------------
-###RestaurangOnlineDevelopmentConsole
+###RestaurangOnline Development Console
 
 ####Setup
 
