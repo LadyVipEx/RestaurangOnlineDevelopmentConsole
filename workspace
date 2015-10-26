@@ -1,0 +1,50 @@
+#!/usr/bin/env php
+<?php
+
+define(__DOCUMENT_ROOT__, __DIR__ . '/');
+
+/**
+ * Composers autoloader
+ */
+require 'vendor/autoload.php';
+
+/**
+ * Helper functions
+ */
+require 'helpers/Functions.php';
+
+/**
+ * Setup database connection
+ */
+require 'helpers/DatabaseSetup.php';
+
+/**
+ * Cleaner way of instantiate commands
+ */
+$commandClasses = [
+	'Workspace' => [
+		'Current',
+		'Set'
+	],
+	'Restaurant' => [
+		'Set'
+	],
+	'Template' => [
+		'Search',
+		'All',
+		'Set'
+	]
+];
+
+/**
+ * Instantiate Symfony console application
+ */
+$application = new Symfony\Component\Console\Application();
+
+foreach (consoleArrayTranslate($commandClasses) as $command) 
+{
+	$application->add(new $command);
+}
+
+$application->run();
+

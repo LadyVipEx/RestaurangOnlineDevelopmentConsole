@@ -1,0 +1,21 @@
+{
+    "name": "staffanselander/restaurang-online-development-console",
+    "description": "RestaurangOnline Development Console tool for developing the template system",
+    "authors": [
+        {
+            "name": "Staffan Selander",
+            "email": "staffan@restaurangonline.se"
+        }
+    ],
+    "require": {
+        "symfony/console": "^2.7",
+        "illuminate/database": "^5.1",
+        "illuminate/events": "^5.1",
+        "illuminate/filesystem": "^5.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    }
+}
