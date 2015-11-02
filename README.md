@@ -9,6 +9,4 @@
 
 
 TODO:
-Application object to contain all
-User model missing commenting
 Commands more implicit

@@ -22,9 +22,9 @@ class EnvironmentConfigurationActor extends AbstractActor {
 		);
 	}
 
-	public function setTemplate($globalTemplate, $template)
+	public function setTemplate($template)
 	{
-		$globalTemplate = $this->translateGlobalTemplate($globalTemplate);
+		$globalTemplate = $this->translateGlobalTemplate($template['globalTemplate']);
 
 		$build = [];
 
@@ -32,7 +32,7 @@ class EnvironmentConfigurationActor extends AbstractActor {
 		{
 			if ($globalTemplate == $global)
 			{
-				$build[$global] = [$template];
+				$build[$global] = [$template['name']];
 			}
 			else
 			{

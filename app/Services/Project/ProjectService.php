@@ -22,28 +22,137 @@ class ProjectService extends AbstractService {
 	/**
 	 * @var App\Models\Users
 	 */
-	protected $users;
+	protected $restaurants;
 
+	/**
+	 * Constructor
+	 */
 	public function __construct()
 	{
-		parent::__construct();
-
-		$this->users = new Users;
+		$this->environment = new EnvironmentConfigurationActor;
 
 		$this->templates = new TemplateConfigurationActor;
 
-		$this->environment = new EnvironmentConfigurationActor;
+		$this->restaurants = new Users;
+
+		parent::__construct();
 	}
 
+
+	/**
+	 * Get all templates from configuration
+	 * 
+	 * @return array
+	 */
+	public function allTemplates()
+	{
+		return $this->templates->all();
+	}
+
+	/**
+	 * Get template from configuration file 
+	 * 
+	 * @param  string $term
+	 * @return array
+	 */
+	public function getTemplate($term)
+	{
+		return $this->templates->first($term);
+	}
+
+	/**
+	 * Get template from configuration file
+	 * 
+	 * @param  string $term
+	 * @return array
+	 */
+	public function getTemplates($term)
+	{
+		return $this->templates->get($term);
+	}
+
+	/**
+	 * Set template for current user in database
+	 * 
+	 * @param  array $template
+	 * @return this
+	 */
 	public function setTemplate($template)
 	{
-		$this->users->setTemplate($template['name']);
-		$this->environment->setTemplate($template['globalTemplate'], $template['name']);
+		$this->restaurants->setTemplate($template);
+
+		return $this;
 	}
 
+	/**
+	 * Get all restaurants from database
+	 * 
+	 * @return array
+	 */
+	public function allRestaurants()
+	{
+		return $this->restaurants->all()
+								 ->toArray();
+	}
+
+	/**
+	 * Get restaurant from database
+	 * 
+	 * @param  string $term
+	 * @return array
+	 */
+	public function getRestaurant($term)
+	{
+		return $this->restaurants->getRestaurant($term)
+								 ->toArray();
+	}
+
+	/**
+	 * Get restaurants from database by value
+	 * 
+	 * @param  string $term
+	 * @return array
+	 */
+	public function getRestaurants($term)
+	{
+		return $this->restaurants->getRestaurants($term)
+								 ->toArray();
+	}
+
+	/**
+	 * Set restaurant for client
+	 * 
+	 * @param  array $restaurant
+	 * @return this
+	 */
+	public function setRestaurant($restaurant)
+	{
+		$this->restaurants->setRestaurant($restaurant);
+
+		return $this;
+	}
+
+	/**
+	 * Set template to grunt
+	 * 
+	 * @param  array $template
+	 * @return this
+	 */
+	public function grunt($template)
+	{
+		$this->environment->setTemplate($template);
+
+		return $this;
+	}
+
+	/**
+	 * Get current information 
+	 * 
+	 * @return array
+	 */
 	public function current()
 	{
-		$current = $this->users->current()->toArray();
+		$current = $this->restaurants->current()->toArray();
 
 		foreach ($this->environment->getConfiguration() as $globalTemplate => $template)
 		{
@@ -51,38 +160,5 @@ class ProjectService extends AbstractService {
 		}
 
 		return $current;
-	}
-
-	public function searchRestaurants($name)
-	{
-		return $this->users->searchRestaurants($name)->toArray();
-	}
-
-	public function searchRestaurant($name)
-	{
-		return $this->users->searchRestaurant($name);
-	}
-
-	public function setRestaurant($restaurant)
-	{
-		$this->users->setRestaurant($restaurant['clientKey']);
-		$template = $this->searchTemplates($restaurant['webTemplateId']);
-		$this->setTemplate(reset($template));
-	}
-
-	public function searchTemplates($name)
-	{
-		return $this->templates->search($name);
-	}
-
-	/**
-	 * Alias of searchRestaurant
-	 * 
-	 * @param  string $name
-	 * @return array
-	 */
-	public function search($name)
-	{
-		return $this->templates->search($name);
 	}
 }

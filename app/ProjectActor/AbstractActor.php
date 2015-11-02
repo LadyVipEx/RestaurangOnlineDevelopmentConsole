@@ -2,6 +2,8 @@
 
 namespace App\ProjectActor;
 
+use App\Config\Enviroment;
+
 class AbstractActor {
 
 	/**
@@ -19,10 +21,17 @@ class AbstractActor {
 	 */
 	protected $projectPath;
 
+	/**
+	 * @var App\Config\Enviroment
+	 */
+	protected $enviroment;
+
 	public function __construct()
 	{
+		$this->enviroment = new Enviroment;
+
 		$this->setProjectPath(
-			env('templates.ro.se')
+			$this->enviroment->get('templates.ro.se')
 		);
 
 		$this->setTemplateConfigurationPath();

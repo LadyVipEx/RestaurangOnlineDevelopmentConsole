@@ -8,35 +8,56 @@ use App\ProjectActor\AbstractActor;
 class TemplateConfigurationActor extends AbstractActor {
 
 	/**
-	 * Template configuration
+	 * Templates
 	 * 
 	 * @var array
 	 */
-	protected $configuration;
+	protected $templates;
 
 	/**
 	 * @var Illuminate\Filesystem\Filesystem
 	 */
 	protected $filesystem;
-	
 
+	/**
+	 * File content off fileconfiguration
+	 * 
+	 * @var array
+	 */
+	protected $configuration;
+	
+	/**
+	 * Constructor
+	 */
 	public function __construct()
 	{
 		parent::__construct();
 
 		$this->filesystem = new Filesystem;
 
-		$this->configuration = $this->loadConfiguration();
+		$this->setTemplates();
 	}
 
 	/**
-	 * Getter for configuration
+	 * Getter for templates
 	 * 
 	 * @return array
 	 */
-	public function getConfiguration()
+	public function getTemplates()
 	{
-		return $this->configuration;
+		return $this->templates;
+	}
+
+	/**
+	 * Setter for templates 
+	 * 
+	 * @param array $templates
+	 */
+	protected function setTemplates(array $templates = null)
+	{
+		$templates = $templates ? $templates : $this->loadTemplates();
+
+		$this->templates = $templates;
 	}
 
 	/**
@@ -46,7 +67,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 */
 	public function all()
 	{
-		return $this->configuration;
+		return $this->templates;
 	}
 
 	/**
@@ -57,15 +78,43 @@ class TemplateConfigurationActor extends AbstractActor {
 	 */
 	public function search($searchTerm)
 	{
-		foreach ($this->configuration as $template => $information) 
+		$i = 0;
+
+		foreach ($this->templates as $index => $template) 
 		{
-			if (strpos($template, $searchTerm) !== false)
+			if (strpos($template['name'], $searchTerm) !== false)
 			{
-				$results[$template] = $information;
+				$results[$i] = $template;
+				
+				$i++;
 			}
 		}
 
 		return $results;
+	}
+
+	/**
+	 * Get templates by template name
+	 * 
+	 * @param  string $template
+	 * @return array
+	 */
+	public function get($template)
+	{
+		return $this->search($template);
+	}
+
+	/**
+	 * Get the first template by template name
+	 * 
+	 * @param  string $template
+	 * @return array
+	 */
+	public function first($template)
+	{
+		return reset(
+			$this->search($template)
+		);
 	}
 
 	/**
@@ -91,7 +140,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * @param  string $configurationFileContent
 	 * @return array
 	 */
-	public function filterTemplates($configurationFileContent)
+	public function filterConfiguration($configurationFileContent)
 	{
 		return $this->doFilters([
 			'filterTemplateRows',
@@ -105,17 +154,46 @@ class TemplateConfigurationActor extends AbstractActor {
 	}
 
 	/**
+	 * Reads the content of the configuration files
+	 * 
+	 * @return string
+	 */
+	public function configurationFileContent()
+	{
+		return $this->filesystem->get(
+			$this->getTemplateConfigurationPath()
+		);
+	}
+
+	/**
 	 * Load the configuration as a clean array
 	 * 
 	 * @return array
 	 */
-	public function loadConfiguration()
+	public function loadTemplates()
 	{
-		$templates = $this->filterTemplates(
+		$templates = $this->filterConfiguration(
 			$this->configurationFileContent()
 		);
 
 		return $templates;
+	}
+
+	/**
+	 * Do filters
+	 * 
+	 * @param  array  $filters
+	 * @param  string $filterObject
+	 * @return filtered filterObject
+	 */
+	public function doFilters(array $filters, $filterObject)
+	{
+		foreach ($filters as $filter) 
+		{
+			$filterObject = $this->{ $filter }($filterObject); 
+		}
+
+		return $filterObject;
 	}
 
 	/**
@@ -188,23 +266,6 @@ class TemplateConfigurationActor extends AbstractActor {
 	}
 
 	/**
-	 * Do filters
-	 * 
-	 * @param  array  $filters
-	 * @param  string $filterObject
-	 * @return filtered filterObject
-	 */
-	public function doFilters(array $filters, $filterObject)
-	{
-		foreach ($filters as $filter) 
-		{
-			$filterObject = $this->{ $filter }($filterObject); 
-		}
-
-		return $filterObject;
-	}
-
-	/**
 	 * Explode alla array's by spaces
 	 * 
 	 * @param  array  $array
@@ -244,7 +305,7 @@ class TemplateConfigurationActor extends AbstractActor {
 				$i++;
 			}
 
-			$sorted[$value[0]] = $this->formatTemplateInformation(
+			$sorted[$key] = $this->formatTemplateInformation(
 				array_map('trim', $value)
 			);
 		}
@@ -265,17 +326,5 @@ class TemplateConfigurationActor extends AbstractActor {
 		});
 
 		return $array;
-	}
-
-	/**
-	 * Reads the content of the configuration files
-	 * 
-	 * @return string
-	 */
-	public function configurationFileContent()
-	{
-		return $this->filesystem->get(
-			$this->getTemplateConfigurationPath()
-		);
 	}
 }

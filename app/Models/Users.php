@@ -4,14 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Users extends Model {
+use App\Models\UsersInterface;
+use App\Config\Enviroment;
+
+class Users extends Model implements UsersInterface {
+
+	/**
+	 * @var App\Config\Enviroment
+	 */
+	protected $enviroment;
 
 	/**
 	 * Default host to set for template
 	 * 
 	 * @var string
 	 */
-	protected $userHost;
+	protected $client;
 
 	/**
      * The table associated with the model.
@@ -32,77 +40,132 @@ class Users extends Model {
 	{
 		parent::__construct();
 
-		$this->userHost = env('default.host');
+		$this->enviroment = new Enviroment;
 
-		$this->setDefaultsIfNeeded();
+		$this->client = $this->enviroment->get('default.client');
+
+		$this->setRequired();
 	}
 
-	public function setDefaultsIfNeeded()
+	/**
+	 * Get restaurants
+	 * 
+	 * @param  string $term
+	 * @return collection
+	 */
+	public function getRestaurants($term)
 	{
-		if ($this->where('webURL', '=', $this->userHost)->count() == 0)
+		$key = $this->clientkeyOrRestaurantName($term);
+
+		return $this->where($key, 'LIKE', '%' . $term . '%')->get();
+	}
+
+	/**
+	 * Get restaurant
+	 * 
+	 * @param  string $term
+	 * @return collection
+	 */
+	public function getRestaurant($term)
+	{
+		$key = $this->clientkeyOrRestaurantName($term);
+
+		return $this->where($key, 'LIKE', '%' . $term . '%')->first();
+	}
+
+	/**
+	 * Set restaurant for client
+	 * 
+	 * @param  array $restaurant
+	 * @return this
+	 */
+	public function setRestaurant(array $restaurant)
+	{
+		$this->removeClient();
+
+		$this->where('clientKey', '=', $restaurant['clientKey'])->update([
+			'webURL' => $this->client
+		]);
+
+		return $this;
+	}
+
+	/**
+	 * Set template for current restaurant
+	 * 
+	 * @param array $template
+	 */
+	public function setTemplate(array $template)
+	{
+		$this->where('webURL', $this->client)->update([
+			'webTemplateId' => $template['name']
+		]);
+
+		return $this;
+	}
+
+	/**
+	 * Remove current client from restaruant
+	 * 
+	 * @return this
+	 */
+	protected function removeClient()
+	{
+		$this->where('webURL', $this->client)->update([
+			'webURL' => ''
+		]);
+
+		return $this;
+	}
+
+	/**
+	 * Get current user
+	 * 
+	 * @return collection
+	 */
+	public function current()
+	{
+		return $this->where('webURL', '=', $this->client)->first();
+	}
+
+	/**
+	 * Set required if non is set
+	 *
+	 * @return this
+	 */
+	protected function setRequired()
+	{
+		if ($this->where('webURL', '=', $this->client)->count() == 0)
 		{
-			$this->setDefaults();
+			$this->desireDefault();
 		}
+
+		return $this;
 	}
 
-	public function setDefaults()
+	/**
+	 * Update database with defaults
+	 * 
+	 * @return this
+	 */
+	protected function desireDefault()
 	{
-		$this->where('clientkey', env('default.clientkey'))
-			 ->update([
-			 		'webURL' => $this->userHost,
-			 		'webTemplateId' => env('default.template')
-			 	]);
+		$this->where('clientkey', env('default.clientkey'))->update([
+			'webURL' => $this->client,
+			'webTemplateId' => env('default.template')
+		]);
+
+		return $this;
 	}
 
-	public function setTemplate($template)
-	{
-		$this->where('webURL', $this->userHost)
-			 ->update([
-			 	'webTemplateId' => $template
-			 ]);
-	}
-
-	public function searchRestaurant($value)
-	{
-		$key = $this->clientkeyOrRestaurantName($value);
-
-		return $this->where($key, 'LIKE', '%' . $value . '%')->first();
-	}
-
-	public function searchRestaurants($value)
-	{
-		$key = $this->clientkeyOrRestaurantName($value);
-
-		return $this->where($key, 'LIKE', '%' . $value . '%')->get();
-	}
-
-	public function setRestaurant($value)
-	{
-		$key = $this->clientkeyOrRestaurantName($value);
-
-		$this->resetSelectedData();
-
-		return $this->where($key, 'LIKE', '%' . $value . '%')
-					->update([
-						'webURL' => $this->userHost
-					]);
-	}
-
-	public function resetSelectedData()
-	{
-		$this->where('webURL', $this->userHost)
-			 ->update([
-			 	'webURL' => ''
-			 ]);
-	}
-
-	public function clientkeyOrRestaurantName($value)
+	/**
+	 * Get value kind. Clienykey || restaurantName
+	 *  
+	 * @param  string $value
+	 * @return string
+	 */
+	protected function clientkeyOrRestaurantName($value)
 	{
 		return strlen($value) === 18 ? 'clientkey' : 'restaurantName' ;
 	}
-
-	public function current()
-	{
-		return $this->where('webURL', '=', $this->userHost)->first();
-	}		
 }

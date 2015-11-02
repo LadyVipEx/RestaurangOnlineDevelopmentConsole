@@ -32,7 +32,7 @@ class Enviroment
 	 */
 	public function __construct($path = null)
 	{
-		$this->path = isset($path) ? $path : __DOCUMENT_ROOT__ . '.env';
+		$this->path = isset($path) ? $path : __DIR__ . '/../../.env';
 
 		$this->filesystem = new Filesystem;
 
