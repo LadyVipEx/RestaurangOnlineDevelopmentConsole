@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\UsersInterface;
 use App\Config\Enviroment;
+use App\Config\Database;
 
 class Users extends Model implements UsersInterface {
 
@@ -13,6 +14,11 @@ class Users extends Model implements UsersInterface {
 	 * @var App\Config\Enviroment
 	 */
 	protected $enviroment;
+
+	/**
+	 * @var App\Config\Database
+	 */
+	protected $database;
 
 	/**
 	 * Default host to set for template
@@ -43,6 +49,8 @@ class Users extends Model implements UsersInterface {
 		$this->enviroment = new Enviroment;
 
 		$this->client = $this->enviroment->get('default.client');
+
+		(new Database)->setup();
 
 		$this->setRequired();
 	}

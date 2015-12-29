@@ -80,7 +80,8 @@ class Enviroment
 		{
 			$enviromentParts = explode("=", $enviromentLine);
 
-			$build[trim($enviromentParts[0])] = trim($enviromentParts[1]);
+			if (strlen(trim($enviromentParts[0])) > 0)
+				$build[trim($enviromentParts[0])] = trim($enviromentParts[1]);
 		}
 
 		return $build;

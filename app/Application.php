@@ -4,8 +4,6 @@ namespace App;
 
 use Symfony\Component\Console\Application as ConsoleApplication;
 
-use App\Config\Database;
-
 class Application {
 
 	/**
@@ -37,16 +35,9 @@ class Application {
 	 */
 	protected $consoleApplication;
 
-	/**
-	 * @var App\Config\Database
-	 */
-	protected $database;
-
 	public function __construct()
 	{
 		$this->consoleApplication = new ConsoleApplication;
-
-		$this->database = new Database;
 	}
 
 	/**
@@ -93,10 +84,6 @@ class Application {
 	 */
 	public function run()
 	{
-		$this->database->setup();
-
-		$this->setupConsoleCommands();
-
-		return $this->consoleApplication->run();
+		$this->setupConsoleCommands()->consoleApplication->run();
 	}
 }

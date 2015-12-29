@@ -2,10 +2,18 @@
 
 namespace App\ProjectActor\TemplateConfiguration;
 
+use App\ProjectActor\TemplateConfiguration\TemplateConfigurationInterface;
 use Illuminate\Filesystem\Filesystem;
 use App\ProjectActor\AbstractActor;
 
-class TemplateConfigurationActor extends AbstractActor {
+class TemplateConfigurationActor extends AbstractActor implements TemplateConfigurationInterface {
+
+	/**
+	 * File content off fileconfiguration
+	 * 
+	 * @var array
+	 */
+	protected $fileContent;
 
 	/**
 	 * Templates
@@ -15,16 +23,11 @@ class TemplateConfigurationActor extends AbstractActor {
 	protected $templates;
 
 	/**
+	 * Illuminate filesystem
+	 * 
 	 * @var Illuminate\Filesystem\Filesystem
 	 */
 	protected $filesystem;
-
-	/**
-	 * File content off fileconfiguration
-	 * 
-	 * @var array
-	 */
-	protected $configuration;
 	
 	/**
 	 * Constructor
@@ -35,29 +38,11 @@ class TemplateConfigurationActor extends AbstractActor {
 
 		$this->filesystem = new Filesystem;
 
+		$this->fileContent = explode("\n", 
+			$this->configurationFileContent()
+		);
+
 		$this->setTemplates();
-	}
-
-	/**
-	 * Getter for templates
-	 * 
-	 * @return array
-	 */
-	public function getTemplates()
-	{
-		return $this->templates;
-	}
-
-	/**
-	 * Setter for templates 
-	 * 
-	 * @param array $templates
-	 */
-	protected function setTemplates(array $templates = null)
-	{
-		$templates = $templates ? $templates : $this->loadTemplates();
-
-		$this->templates = $templates;
 	}
 
 	/**
@@ -68,29 +53,6 @@ class TemplateConfigurationActor extends AbstractActor {
 	public function all()
 	{
 		return $this->templates;
-	}
-
-	/**
-	 * Search through the templates for given term
-	 * 
-	 * @param  string $searchTerm
-	 * @return array
-	 */
-	public function search($searchTerm)
-	{
-		$i = 0;
-
-		foreach ($this->templates as $index => $template) 
-		{
-			if (strpos($template['name'], $searchTerm) !== false)
-			{
-				$results[$i] = $template;
-				
-				$i++;
-			}
-		}
-
-		return $results;
 	}
 
 	/**
@@ -118,13 +80,63 @@ class TemplateConfigurationActor extends AbstractActor {
 	}
 
 	/**
+	 * Getter for templates
+	 * 
+	 * @return array
+	 */
+	public function getTemplates()
+	{
+		return $this->templates;
+	}
+
+	/**
+	 * Search through the templates for given term
+	 * 
+	 * @param  string $searchTerm
+	 * @return array
+	 */
+	protected function search($searchTerm)
+	{
+		$i = 0;
+
+		foreach ($this->templates as $index => $template) 
+		{
+			if (strpos($template['name'], $searchTerm) !== false)
+			{
+				$results[$i] = $template;
+				
+				$i++;
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Setter for templates 
+	 * 
+	 * @param array $templates
+	 */
+	protected function setTemplates(array $templates = null)
+	{
+		$templates = $templates ? $templates : $this->loadTemplates();
+
+		$this->templates = $templates;
+	}
+
+	/**
 	 * Get format of the template configuration
 	 * 
 	 * @param  array $array
 	 * @return array
 	 */
-	public function formatTemplateInformation($array)
+	protected function formatTemplateInformation($array)
 	{
+		if (!isset($array[4]))
+		{
+			dd($array);
+		}
+
 		return [
 			'name' 				=> $array[0],
 			'template' 			=> $array[1],
@@ -140,7 +152,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * @param  string $configurationFileContent
 	 * @return array
 	 */
-	public function filterConfiguration($configurationFileContent)
+	protected function filterConfiguration($configurationFileContent)
 	{
 		return $this->doFilters([
 			'filterTemplateRows',
@@ -158,7 +170,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * 
 	 * @return string
 	 */
-	public function configurationFileContent()
+	protected function configurationFileContent()
 	{
 		return $this->filesystem->get(
 			$this->getTemplateConfigurationPath()
@@ -170,7 +182,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * 
 	 * @return array
 	 */
-	public function loadTemplates()
+	protected function loadTemplates()
 	{
 		$templates = $this->filterConfiguration(
 			$this->configurationFileContent()
@@ -186,7 +198,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * @param  string $filterObject
 	 * @return filtered filterObject
 	 */
-	public function doFilters(array $filters, $filterObject)
+	protected function doFilters(array $filters, $filterObject)
 	{
 		foreach ($filters as $filter) 
 		{
@@ -202,7 +214,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * @param  string $fileContent
 	 * @return string
 	 */
-	public function filterTemplateRows($fileContent)
+	protected function filterTemplateRows($fileContent)
 	{
 		$fileContent = explode("\n", $fileContent);
 
@@ -221,16 +233,16 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * @param  array $string [description]
 	 * @return array
 	 */
-	public function filterArrayContentBetweenParenthesis($array)
+	protected function filterArrayContentBetweenParenthesis($array)
 	{
-		for ( $i = 0; $i < count($array); $i++ ) 
+		foreach ($array as $template) 
 		{
-			$a = split('[()]', $array[$i]);
+			preg_match('/[(](.*)[)]/', $template, $a);
 
-			$array[$i] = $a[1];	
+			$content[] = $a[1];
 		}
 
-		return $array;
+		return $content;
 	}
 
 	/**
@@ -239,7 +251,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * @param  array $array
 	 * @return array
 	 */
-	public function filterRemoveApostrophes($array)
+	protected function filterRemoveApostrophes($array)
 	{
 		for ( $i = 0; $i < count($array); $i++ ) 
 		{
@@ -255,7 +267,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * @param  array $array
 	 * @return array
 	 */
-	public function filterRemoveSemicolons($array)
+	protected function filterRemoveSemicolons($array)
 	{
 		for ( $i = 0; $i < count($array); $i++ ) 
 		{
@@ -271,11 +283,13 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * @param  array  $array
 	 * @return array
 	 */
-	public function filterExplodeTemplateInformation(array $array)
+	protected function filterExplodeTemplateInformation(array $array)
 	{
 		for ( $i = 0; $i < count($array); $i++ ) 
 		{
-			$r = explode(' ', $array[$i]);
+			$r = array_map(
+				'trim', explode(' ', $array[$i])
+			);
 
 			$array[$i] = $this->cleanArray($r);
 		}
@@ -289,7 +303,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * @param  array $array
 	 * @return array
 	 */
-	public function sortToTemplatesRow($array)
+	protected function sortToTemplatesRow($array)
 	{
 		$sorted = [];
 
@@ -319,7 +333,7 @@ class TemplateConfigurationActor extends AbstractActor {
 	 * @param  array $array
 	 * @return array
 	 */
-	public function cleanArray($array)
+	protected function cleanArray($array)
 	{
 		$array = array_filter($array, function($value) {
 			return !empty($value) || $value === 0;

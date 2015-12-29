@@ -29,6 +29,7 @@ class Database
 	public function setup()
 	{
 		$capsule = new Capsule;
+		
 		$capsule->addConnection([
 			'driver' 		=> 'mysql',
 			'host'	 		=> $this->enviroment->get('mysql.hostname'),
@@ -36,7 +37,7 @@ class Database
 			'username' 		=> $this->enviroment->get('mysql.username'),
 			'password' 		=> $this->enviroment->get('mysql.password'),
 			'charset'  		=> 'utf8',
-			'collaction' 	=> 'utf8_unicode_ci',
+			'collation' 	=> 'utf8_unicode_ci',
 			'prefix' 		=> ''
 		]);
 
