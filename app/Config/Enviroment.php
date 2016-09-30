@@ -4,8 +4,7 @@ namespace App\Config;
 
 use Illuminate\Filesystem\Filesystem;
 
-class Enviroment
-{
+class Enviroment {
 
 	/**
 	 * @var Illuminate\Filesystem\Filesystem;

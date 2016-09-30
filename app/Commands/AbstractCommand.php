@@ -54,7 +54,7 @@ class AbstractCommand extends Command {
 			$rows = $controlledRows;
 		}
 
-		$table->setHeaders($header)
+		return $table->setHeaders($header)
 			  ->setRows($rows)
 			  ->render();
 	}
@@ -68,7 +68,7 @@ class AbstractCommand extends Command {
 	 */
 	protected function outputTemplateTable(OutputInterface $output, array $rows)
 	{
-		$this->outputTable($output, [
+		return $this->outputTable($output, [
 			'Name', 
 			'Template', 
 			'Base template', 
@@ -96,7 +96,7 @@ class AbstractCommand extends Command {
 			];
 		}
 
-		$this->outputTable($output, [
+		return $this->outputTable($output, [
 			'Restaurant name', 
 			'Username', 
 			'Template', 
@@ -118,15 +118,19 @@ class AbstractCommand extends Command {
 			$rows['userName'],
 			$rows['webTemplateId'],
 			$rows['clientKey'],
-			$rows['templatesBS2'],
-			$rows['templatesBS3']
+			$rows['online'] 	  ? 'true' : 'false',
+			$rows['featurePopup'] ? 'true' : 'false',
+			$rows['assets'],
+			$rows['assetsBS3']
 		]];
 
-		$this->outputTable($output, [
+		return $this->outputTable($output, [
 			'Restaurant name', 
 			'Username', 
 			'Template', 
 			'Clientkey',
+			'Online',
+			'Feature Popup',
 			'Grunt # bs2',
 			'Grunt # bs3'
 		], $controlledRows);

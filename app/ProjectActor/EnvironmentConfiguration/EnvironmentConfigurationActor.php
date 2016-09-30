@@ -48,10 +48,10 @@ class EnvironmentConfigurationActor extends AbstractActor {
 		switch ($name)
 		{
 			case 'global':
-					return 'templatesBS2';
+					return 'assets';
 				break;
 			case 'globalbs3';
-					return 'templatesBS3';
+					return 'assetsBS3';
 				break;
 		}
 	}
@@ -60,10 +60,10 @@ class EnvironmentConfigurationActor extends AbstractActor {
 	{
 		switch ($name)
 		{
-			case 'templatesBS2':
+			case 'assets':
 					return 'global';
 				break;
-			case 'templatesBS3';
+			case 'assetsBS3';
 					return 'globalbs3';
 				break;
 		}
@@ -78,8 +78,8 @@ class EnvironmentConfigurationActor extends AbstractActor {
 	public function globalTemplates()
 	{
 		return [
-			'templatesBS2',
-			'templatesBS3'
+			'assets',
+			'assetsBS3'
 		];
 	}
 
@@ -94,7 +94,7 @@ class EnvironmentConfigurationActor extends AbstractActor {
 
 		$this->filesystem->put(
 			$this->getTemplateEnviromentPath(),
-			json_encode($this->configuration)
+			json_encode($this->configuration, JSON_PRETTY_PRINT)
 		);
 	}
 

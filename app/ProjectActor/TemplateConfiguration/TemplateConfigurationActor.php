@@ -74,9 +74,94 @@ class TemplateConfigurationActor extends AbstractActor implements TemplateConfig
 	 */
 	public function first($template)
 	{
-		return reset(
-			$this->search($template)
+		$template = $this->search($template);
+
+		return reset($template);
+	}
+
+	/**
+	 * Add a template to the configuration file
+	 * 
+	 * @param string $name
+	 * @param string $template
+	 * @param string $baseTemplate
+	 * @param string $globalTemplate
+	 * @param string $iconFolder
+	 * @return this
+	 */
+	public function add($name, $template, $baseTemplate, $globalTemplate, $iconFolder)
+	{
+		$find = '/* -- Automated Additions -- */';
+
+		$fileContent = $this->doFilters([
+			'filterExplodeNewLines'
+		], $this->configurationFileContent());
+
+		$found = false;
+		foreach ($fileContent as $index => $line) 
+		{
+			if (strpos($line, $find) !== false && $found === false)
+			{
+				$found = true;
+			}
+
+			if ($found === true && strlen($line) === 0)
+			{
+				array_splice($fileContent, $index, 0, '$collection->addTemplate(\'' . $name . '\', \'' . $template . '\', \'' . $baseTemplate . '\', \'' . $globalTemplate . '\', \'' . $iconFolder . '\');'); 
+
+				break;
+			}
+		}
+
+		$this->filesystem->put(
+			$this->getTemplateConfigurationPath(), join("\n", $fileContent)
 		);
+
+		return $this;
+	}
+
+	/**
+	 * Duplicate a template configuration
+	 * 
+	 * @param  string $existingTemplate
+	 * @param  string $template
+	 * @return this
+	 */
+	public function duplicate($existingTemplate, $template) {
+		$existingTemplate = $this->first($existingTemplate);
+
+		$this->filesystem->copyDirectory(
+			$this->getProjectPath() . $this->translateGlobalTemplate($existingTemplate['globalTemplate']) . '/restaurants/' . $existingTemplate['template'],
+			$this->getProjectPath() . $this->translateGlobalTemplate($existingTemplate['globalTemplate']) . '/restaurants/' . $template
+		);
+
+		$this->filesystem->copyDirectory(
+			$this->getProjectPath() . 'public/application/views/' . $existingTemplate['template'],
+			$this->getProjectPath() . 'public/application/views/' . $template
+		);
+
+		$this->add(
+			$template, 
+			$template, 
+			$existingTemplate['baseTemplate'], 
+			$existingTemplate['globalTemplate'], 
+			$existingTemplate['iconFolder']
+		);
+
+		return $this;
+	}
+
+	public function translateGlobalTemplate($name)
+	{
+		switch ($name)
+		{
+			case 'global':
+					return 'assets';
+				break;
+			case 'globalbs3';
+					return 'assetsBS3';
+				break;
+		}
 	}
 
 	/**
@@ -97,6 +182,7 @@ class TemplateConfigurationActor extends AbstractActor implements TemplateConfig
 	 */
 	protected function search($searchTerm)
 	{
+		$results = [];
 		$i = 0;
 
 		foreach ($this->templates as $index => $template) 
@@ -132,17 +218,12 @@ class TemplateConfigurationActor extends AbstractActor implements TemplateConfig
 	 */
 	protected function formatTemplateInformation($array)
 	{
-		if (!isset($array[4]))
-		{
-			dd($array);
-		}
-
 		return [
-			'name' 				=> $array[0],
-			'template' 			=> $array[1],
-			'baseTemplate' 		=> $array[2],
-			'globalTemplate' 	=> $array[3],
-			'iconFolder'		=> $array[4]
+			'name' 			 => $array[0],
+			'template' 		 => $array[1],
+			'baseTemplate' 	 => $array[2],
+			'globalTemplate' => $array[3],
+			'iconFolder'	 => $array[4]
 		];
 	}
 
@@ -225,6 +306,11 @@ class TemplateConfigurationActor extends AbstractActor implements TemplateConfig
 				return $string;
 			}
 		});
+	}
+
+	public function filterExplodeNewLines($string)
+	{
+		return explode("\n", $string);
 	}
 
 	/**

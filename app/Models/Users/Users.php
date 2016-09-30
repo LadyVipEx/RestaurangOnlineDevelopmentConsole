@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Users;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\UsersInterface;
+use App\Models\Users\UsersInterface;
 use App\Config\Enviroment;
 use App\Config\Database;
 
@@ -48,8 +48,6 @@ class Users extends Model implements UsersInterface {
 
 		$this->enviroment = new Enviroment;
 
-		$this->client = $this->enviroment->get('default.client');
-
 		(new Database)->setup();
 
 		$this->setRequired();
@@ -92,7 +90,7 @@ class Users extends Model implements UsersInterface {
 		$this->removeClient();
 
 		$this->where('clientKey', '=', $restaurant['clientKey'])->update([
-			'webURL' => $this->client
+			'webURL' => $this->getClient()
 		]);
 
 		return $this;
@@ -105,11 +103,46 @@ class Users extends Model implements UsersInterface {
 	 */
 	public function setTemplate(array $template)
 	{
-		$this->where('webURL', $this->client)->update([
+		$this->where('webURL', $this->getClient())->update([
 			'webTemplateId' => $template['name']
 		]);
 
 		return $this;
+	}
+
+	/**
+	 * Toggle entity to true or false
+	 * 
+	 * @param  mixed  $entity
+	 * @param  string $identifier
+	 * @return this
+	 */
+	protected function toggleEntity($entity, $identifier)
+	{
+		$changeUser = $this->where(
+			$this->clientkeyOrRestaurantName($identifier)
+		, $identifier)->first();
+
+		$this->where(
+			$this->clientkeyOrRestaurantName($identifier)
+		, $identifier)->update([
+			$entity => $changeUser->{ $entity } == false ? true : false
+		]);		
+
+		return $this;
+	}
+
+	/**
+	 * Toggle popup for restaurant
+	 * 
+	 * @param  mixed $identifier
+	 * @return this
+	 */
+	public function togglePopup($identifier = null)
+	{
+		$identifier = $identifier === null ? $this->current()->clientKey : $identifier;
+		
+		return $this->toggleEntity('featurePopup', $identifier);
 	}
 
 	/**
@@ -119,7 +152,7 @@ class Users extends Model implements UsersInterface {
 	 */
 	protected function removeClient()
 	{
-		$this->where('webURL', $this->client)->update([
+		$this->where('webURL', $this->getClient())->update([
 			'webURL' => ''
 		]);
 
@@ -133,7 +166,7 @@ class Users extends Model implements UsersInterface {
 	 */
 	public function current()
 	{
-		return $this->where('webURL', '=', $this->client)->first();
+		return $this->where('webURL', '=', $this->getClient())->first();
 	}
 
 	/**
@@ -143,7 +176,7 @@ class Users extends Model implements UsersInterface {
 	 */
 	protected function setRequired()
 	{
-		if ($this->where('webURL', '=', $this->client)->count() == 0)
+		if ($this->where('webURL', '=', $this->getClient())->count() == 0)
 		{
 			$this->desireDefault();
 		}
@@ -158,12 +191,22 @@ class Users extends Model implements UsersInterface {
 	 */
 	protected function desireDefault()
 	{
-		$this->where('clientkey', env('default.clientkey'))->update([
-			'webURL' => $this->client,
-			'webTemplateId' => env('default.template')
+		$this->where('clientkey', $this->enviroment->get('default.clientkey'))->update([
+			'webURL' => $this->getClient(),
+			'webTemplateId' => $this->enviroment->get('default.template')
 		]);
 
 		return $this;
+	}
+
+	/**
+	 * Getter for current client
+	 * 
+	 * @return string
+	 */
+	public function getClient()
+	{
+		return $this->enviroment->get('default.client');	
 	}
 
 	/**

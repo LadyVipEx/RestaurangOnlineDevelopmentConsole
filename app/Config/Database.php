@@ -9,8 +9,8 @@ use Illuminate\Events\Dispatcher;
 
 use App\Config\Enviroment;
 
-class Database
-{
+class Database {
+	
 	/**
 	 * @var App\Config\Enviroment
 	 */

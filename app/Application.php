@@ -4,6 +4,10 @@ namespace App;
 
 use Symfony\Component\Console\Application as ConsoleApplication;
 
+use Symfony\Component\Console\Output\ConsoleOutput;
+
+use Exception;
+
 class Application {
 
 	/**
@@ -18,16 +22,17 @@ class Application {
 		],
 		'Get' => [
 			'Restaurants',
-			'Templates',
+			'Templates', // --with-files
 			'Current'
 		],
 		'Set' => [
 			'Restaurant',
-			'Template'
+			'Template',
+			'Current'
 		],
-		// 'Duplicate' => [
-		// 	'Template'
-		// ]
+		'Duplicate' => [
+			'Template'
+		]
 	];
 
 	/**
@@ -35,9 +40,19 @@ class Application {
 	 */
 	protected $consoleApplication;
 
-	public function __construct()
+	/**
+	 * Setup symfonys consoles application
+	 * 
+	 * @return ConsoleApplication
+	 */
+	public function setupConsoleApplication()
 	{
-		$this->consoleApplication = new ConsoleApplication;
+		$this->consoleApplication = new ConsoleApplication();
+		$this->consoleApplication->setCatchExceptions(false);
+
+		$this->setupConsoleCommands();
+
+		return $this->consoleApplication;
 	}
 
 	/**
@@ -84,6 +99,6 @@ class Application {
 	 */
 	public function run()
 	{
-		$this->setupConsoleCommands()->consoleApplication->run();
+		$this->setupConsoleApplication()->run(); 
 	}
 }

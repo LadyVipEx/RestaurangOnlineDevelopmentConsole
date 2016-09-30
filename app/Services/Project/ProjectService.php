@@ -4,10 +4,16 @@ namespace App\Services\Project;
 
 use App\ProjectActor\EnvironmentConfiguration\EnvironmentConfigurationActor;
 use App\ProjectActor\TemplateConfiguration\TemplateConfigurationActor;
+use App\Models\RoStatus\RoStatus;
 use App\Services\AbstractService;
-use App\Models\Users;
+use App\Models\Users\Users;
 
 class ProjectService extends AbstractService {
+
+	/**
+	 * @var App\Models\RoStatus\RoStatus
+	 */
+	protected $restaurantStatus;
 
 	/**
 	 * @var App\ProjectActor\EnvironmentConfiguration\EnvironmentConfigurationActor
@@ -15,14 +21,14 @@ class ProjectService extends AbstractService {
 	protected $environment;
 
 	/**
-	 * @var App\ProjectActor\TemplateConfiguration\TemplateConfigurationActor
-	 */
-	protected $templates;
-
-	/**
 	 * @var App\Models\Users
 	 */
 	protected $restaurants;
+
+	/**
+	 * @var App\ProjectActor\TemplateConfiguration\TemplateConfigurationActor
+	 */
+	protected $templates;
 
 	/**
 	 * Constructor
@@ -33,11 +39,12 @@ class ProjectService extends AbstractService {
 
 		$this->templates = new TemplateConfigurationActor;
 
+		$this->restaurantStatus = new RoStatus;
+
 		$this->restaurants = new Users;
 
 		parent::__construct();
 	}
-
 
 	/**
 	 * Get all templates from configuration
@@ -91,8 +98,7 @@ class ProjectService extends AbstractService {
 	 */
 	public function allRestaurants()
 	{
-		return $this->restaurants->all()
-								 ->toArray();
+		return $this->restaurants->all();
 	}
 
 	/**
@@ -104,7 +110,7 @@ class ProjectService extends AbstractService {
 	public function getRestaurant($term)
 	{
 		return $this->restaurants->getRestaurant($term)
-								 ->toArray();
+								 	->toArray();
 	}
 
 	/**
@@ -116,7 +122,7 @@ class ProjectService extends AbstractService {
 	public function getRestaurants($term)
 	{
 		return $this->restaurants->getRestaurants($term)
-								 ->toArray();
+								 	->toArray();
 	}
 
 	/**
@@ -133,14 +139,16 @@ class ProjectService extends AbstractService {
 	}
 
 	/**
-	 * Set template to grunt
+	 * Duplicate a template copy files and insert into templates
+	 * configuration
 	 * 
-	 * @param  array $template
+	 * @param  string $existingTemplate
+	 * @param  string $template
 	 * @return this
 	 */
-	public function grunt($template)
+	public function duplicateTemplate($existingTemplate, $template)
 	{
-		$this->environment->setTemplate($template);
+		$this->templates->duplicate($existingTemplate, $template);
 
 		return $this;
 	}
@@ -159,6 +167,61 @@ class ProjectService extends AbstractService {
 			$current[$globalTemplate] = $template[0];
 		}
 
+		$current = array_merge($current, 
+			$this->restaurantStatus->getStatus($current['clientKey'])->toArray()
+		);
+		
 		return $current;
+	}
+
+	/**
+	 * Set current restaurant status to online
+	 * 
+	 */
+	public function setCurrentOnline()
+	{
+		$current = $this->restaurants->current()->toArray();
+
+		$this->restaurantStatus->setOnline($current['clientKey']);
+
+		return $this;
+	}
+
+	/**
+	 * Set current restaurant status to offline
+	 * 
+	 */
+	public function setCurrentOffline()
+	{
+		$current = $this->restaurants->current()->toArray();
+
+		$this->restaurantStatus->setOffline($current['clientKey']);
+
+		return $this;
+	}
+
+	/**
+	 * Toggle feature popup for current restaurant
+	 * 
+	 * @return this
+	 */
+	public function toggleCurrentPopup()
+	{
+		$this->restaurants->togglePopup();
+
+		return $this;
+	}
+
+	/**
+	 * Set template to grunt
+	 * 
+	 * @param  array $template
+	 * @return this
+	 */
+	public function grunt($template)
+	{
+		$this->environment->setTemplate($template);
+
+		return $this;
 	}
 }

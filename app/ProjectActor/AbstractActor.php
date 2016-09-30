@@ -102,5 +102,4 @@ class AbstractActor {
 	{
 		return $this->projectPath;
 	}
-
 }
