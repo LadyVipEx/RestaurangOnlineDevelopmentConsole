@@ -1,4 +1,4 @@
-FROM composer:1.0
+FROM composer/composer:1.1
 
 RUN mkdir -p /usr/src/RestaurangOnlineDevelopmentConsole
 WORKDIR /usr/src/RestaurangOnlineDevelopmentConsole
