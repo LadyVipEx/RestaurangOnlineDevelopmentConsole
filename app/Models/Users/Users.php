@@ -1,22 +1,16 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Users;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\UsersInterface;
-use App\Config\Enviroment;
 use App\Config\Database;
 
 class Users extends Model implements UsersInterface {
 
 	/**
-	 * @var App\Config\Enviroment
-	 */
-	protected $enviroment;
-
-	/**
-	 * @var App\Config\Database
+	 * @var Database
 	 */
 	protected $database;
 
@@ -46,10 +40,6 @@ class Users extends Model implements UsersInterface {
 	{
 		parent::__construct();
 
-		$this->enviroment = new Enviroment;
-
-		$this->client = $this->enviroment->get('default.client');
-
 		(new Database)->setup();
 
 		$this->setRequired();
@@ -59,7 +49,7 @@ class Users extends Model implements UsersInterface {
 	 * Get restaurants
 	 * 
 	 * @param  string $term
-	 * @return collection
+	 * @return Collection
 	 */
 	public function getRestaurants($term)
 	{
@@ -72,7 +62,7 @@ class Users extends Model implements UsersInterface {
 	 * Get restaurant
 	 * 
 	 * @param  string $term
-	 * @return collection
+	 * @return Collection
 	 */
 	public function getRestaurant($term)
 	{
@@ -85,14 +75,14 @@ class Users extends Model implements UsersInterface {
 	 * Set restaurant for client
 	 * 
 	 * @param  array $restaurant
-	 * @return this
+	 * @return $this
 	 */
 	public function setRestaurant(array $restaurant)
 	{
 		$this->removeClient();
 
 		$this->where('clientKey', '=', $restaurant['clientKey'])->update([
-			'webURL' => $this->client
+			'webURL' => $this->getClient()
 		]);
 
 		return $this;
@@ -102,10 +92,11 @@ class Users extends Model implements UsersInterface {
 	 * Set template for current restaurant
 	 * 
 	 * @param array $template
+     * @return $this
 	 */
 	public function setTemplate(array $template)
 	{
-		$this->where('webURL', $this->client)->update([
+		$this->where('webURL', $this->getClient())->update([
 			'webTemplateId' => $template['name']
 		]);
 
@@ -113,13 +104,46 @@ class Users extends Model implements UsersInterface {
 	}
 
 	/**
+	 * Toggle entity to true or false
+	 * 
+	 * @param  mixed  $entity
+	 * @param  string $identifier
+	 * @return $this
+	 */
+	protected function toggleEntity($entity, $identifier)
+	{
+		$changeUser = $this->where($this->clientkeyOrRestaurantName($identifier), $identifier)
+            ->first();
+
+		$this->where($this->clientkeyOrRestaurantName($identifier), $identifier)
+            ->update([
+                $entity => $changeUser->{ $entity } == false ? true : false
+            ]);
+
+		return $this;
+	}
+
+	/**
+	 * Toggle popup for restaurant
+	 * 
+	 * @param  mixed $identifier
+	 * @return $this
+	 */
+	public function togglePopup($identifier = null)
+	{
+		$identifier = $identifier === null ? $this->current()->clientKey : $identifier;
+		
+		return $this->toggleEntity('featurePopup', $identifier);
+	}
+
+	/**
 	 * Remove current client from restaruant
 	 * 
-	 * @return this
+	 * @return $this
 	 */
 	protected function removeClient()
 	{
-		$this->where('webURL', $this->client)->update([
+		$this->where('webURL', $this->getClient())->update([
 			'webURL' => ''
 		]);
 
@@ -133,17 +157,17 @@ class Users extends Model implements UsersInterface {
 	 */
 	public function current()
 	{
-		return $this->where('webURL', '=', $this->client)->first();
+		return $this->where('webURL', '=', $this->getClient())->first();
 	}
 
 	/**
 	 * Set required if non is set
 	 *
-	 * @return this
+	 * @return $this
 	 */
 	protected function setRequired()
 	{
-		if ($this->where('webURL', '=', $this->client)->count() == 0)
+		if ($this->where('webURL', '=', $this->getClient())->count() == 0)
 		{
 			$this->desireDefault();
 		}
@@ -154,16 +178,26 @@ class Users extends Model implements UsersInterface {
 	/**
 	 * Update database with defaults
 	 * 
-	 * @return this
+	 * @return $this
 	 */
 	protected function desireDefault()
 	{
-		$this->where('clientkey', env('default.clientkey'))->update([
-			'webURL' => $this->client,
-			'webTemplateId' => env('default.template')
+		$this->where('clientkey', getenv('default.clientkey'))->update([
+			'webURL' => $this->getClient(),
+			'webTemplateId' =>getenv('default.template')
 		]);
 
 		return $this;
+	}
+
+	/**
+	 * Getter for current client
+	 * 
+	 * @return string
+	 */
+	public function getClient()
+	{
+		return getenv('default.host');
 	}
 
 	/**

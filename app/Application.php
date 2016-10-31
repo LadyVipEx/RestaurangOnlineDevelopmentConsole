@@ -18,33 +18,44 @@ class Application {
 		],
 		'Get' => [
 			'Restaurants',
-			'Templates',
+			'Templates', // --with-files
 			'Current'
 		],
 		'Set' => [
 			'Restaurant',
-			'Template'
+			'Template',
+			'Current'
 		],
-		// 'Duplicate' => [
-		// 	'Template'
-		// ]
+		'Duplicate' => [
+			'Template'
+		]
 	];
 
 	/**
-	 * @var Symfony\Component\Console\Application
+	 * @var ConsoleApplication
 	 */
 	protected $consoleApplication;
 
-	public function __construct()
+	/**
+	 * Setup symfonys consoles application
+	 * 
+	 * @return ConsoleApplication
+	 */
+	public function setupConsoleApplication()
 	{
-		$this->consoleApplication = new ConsoleApplication;
+		$this->consoleApplication = new ConsoleApplication();
+		$this->consoleApplication->setCatchExceptions(false);
+
+		$this->setupConsoleCommands();
+
+		return $this->consoleApplication;
 	}
 
 	/**
 	 * Instantiate and adds the console commands to 
 	 * the console application
 	 * 
-	 * @return this
+	 * @return $this
 	 */
 	protected function setupConsoleCommands()
 	{
@@ -59,23 +70,22 @@ class Application {
 	/**
 	 * Adding console commands is such a ugly task.
 	 * 
-	 * @param  array $commandClasses
 	 * @return array
 	 */
-	protected function commandClasses()
-	{
-		$consoleCommands = [];
+    protected function commandClasses()
+    {
+        $consoleCommands = [];
 
-		foreach ($this->commands as $globalCommand => $commands) 
-		{
-			foreach ($commands as $command) 
-			{
-				array_push($consoleCommands, 'App\Commands\\' . $globalCommand . 'Commands\\' . $globalCommand . $command);
-			}
-		}
+        foreach ($this->commands as $globalCommand => $commands)
+        {
+            foreach ($commands as $command)
+            {
+                array_push($consoleCommands, 'App\Commands\\' . $globalCommand . 'Commands\\' . $globalCommand . $command);
+            }
+        }
 
-		return $consoleCommands;
-	}
+        return $consoleCommands;
+    }
 
 	/**
 	 * Run the application
@@ -84,6 +94,6 @@ class Application {
 	 */
 	public function run()
 	{
-		$this->setupConsoleCommands()->consoleApplication->run();
+		$this->setupConsoleApplication()->run(); 
 	}
 }

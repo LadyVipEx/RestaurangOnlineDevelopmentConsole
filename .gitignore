@@ -2,3 +2,5 @@ composer.phar
 .DS_Store
 /vendor
 .env
+.phpintel
+.idea

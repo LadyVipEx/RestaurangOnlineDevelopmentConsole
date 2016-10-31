@@ -7,24 +7,12 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Container\Container;
 use Illuminate\Events\Dispatcher;
 
-use App\Config\Enviroment;
-
-class Database
-{
-	/**
-	 * @var App\Config\Enviroment
-	 */
-	protected $enviroment;
-
-	public function __construct()
-	{
-		$this->enviroment = new Enviroment;
-	}
+class Database {
 
 	/**
 	 * Setup all the illuminate magic 
 	 * 
-	 * @return this
+	 * @return $this
 	 */
 	public function setup()
 	{
@@ -32,10 +20,10 @@ class Database
 		
 		$capsule->addConnection([
 			'driver' 		=> 'mysql',
-			'host'	 		=> $this->enviroment->get('mysql.hostname'),
-			'database' 		=> $this->enviroment->get('mysql.database'),
-			'username' 		=> $this->enviroment->get('mysql.username'),
-			'password' 		=> $this->enviroment->get('mysql.password'),
+			'host'	 		=> getenv('mysql.hostname'),
+			'database' 		=> getenv('mysql.database'),
+			'username' 		=> getenv('mysql.username'),
+			'password' 		=> getenv('mysql.password'),
 			'charset'  		=> 'utf8',
 			'collation' 	=> 'utf8_unicode_ci',
 			'prefix' 		=> ''

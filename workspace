@@ -2,9 +2,9 @@
 <?php
 
 /**
- * Composers autoloader
+ * Bootstrap Application
  */
-require 'vendor/autoload.php';
+require 'bootstrap.php';
 
 /**
  * Create the application

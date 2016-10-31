@@ -10,9 +10,8 @@ interface TemplateConfigurationInterface {
 
 	public function get($templateName);
 
-	// public function duplicate($existingTemplate, $templateName);
+	public function duplicate($existingTemplate, $template);
 
-	// public function add($name, $template, $baseTemplate, $globalTemplate, $iconFolder);
-
+	public function add($name, $template, $baseTemplate, $globalTemplate, $iconFolder);
 }
 

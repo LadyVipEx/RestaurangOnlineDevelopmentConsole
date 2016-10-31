@@ -45,7 +45,7 @@ class AllRestaurants extends AllCommand {
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-		$this->outputRestaurantsTable($output, 
+		return $this->outputRestaurantsTable($output, 
 			$this->project->allRestaurants()
 		);
 	}
