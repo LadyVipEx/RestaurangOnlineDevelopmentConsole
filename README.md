@@ -6,7 +6,3 @@
 
 1. .env setup
 2. Composer install
-
-
-TODO:
-Commands more implicit
