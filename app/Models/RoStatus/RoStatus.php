@@ -4,18 +4,12 @@ namespace App\Models\RoStatus;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Config\Enviroment;
 use App\Config\Database;
 
 class RoStatus extends Model {
 
 	/**
-	 * @var App\Config\Enviroment
-	 */
-	protected $enviroment;
-
-	/**
-	 * @var App\Config\Database
+	 * @var Database
 	 */
 	protected $database;
 
@@ -36,8 +30,6 @@ class RoStatus extends Model {
 	public function __construct()
 	{
 		parent::__construct();
-
-		$this->enviroment = new Enviroment;
 
 		(new Database)->setup();
 	}

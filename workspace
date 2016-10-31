@@ -2,25 +2,9 @@
 <?php
 
 /**
- * Composers autoloader
+ * Bootstrap Application
  */
-require 'vendor/autoload.php';
-
-error_reporting(-1);
-
-set_error_handler(function($severity, $message, $file, $line)
-{
-    throw new \ErrorException($message, 0, $severity, $file, $line);
-});
-
-set_exception_handler(function(\Exception $exception)
-{
-	$output = new Symfony\Component\Console\Output\ConsoleOutput();
-
-	(new Symfony\Component\Console\Application())->renderException($exception, $output);
-	$output->writeln('<info>' . $exception->getFile() . ':' . $exception->getLine() . '</info>');
-	$output->writeln('');
-});
+require 'bootstrap.php';
 
 /**
  * Create the application

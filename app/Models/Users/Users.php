@@ -2,21 +2,15 @@
 
 namespace App\Models\Users;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\Users\UsersInterface;
-use App\Config\Enviroment;
 use App\Config\Database;
 
 class Users extends Model implements UsersInterface {
 
 	/**
-	 * @var App\Config\Enviroment
-	 */
-	protected $enviroment;
-
-	/**
-	 * @var App\Config\Database
+	 * @var Database
 	 */
 	protected $database;
 
@@ -46,8 +40,6 @@ class Users extends Model implements UsersInterface {
 	{
 		parent::__construct();
 
-		$this->enviroment = new Enviroment;
-
 		(new Database)->setup();
 
 		$this->setRequired();
@@ -57,7 +49,7 @@ class Users extends Model implements UsersInterface {
 	 * Get restaurants
 	 * 
 	 * @param  string $term
-	 * @return collection
+	 * @return Collection
 	 */
 	public function getRestaurants($term)
 	{
@@ -70,7 +62,7 @@ class Users extends Model implements UsersInterface {
 	 * Get restaurant
 	 * 
 	 * @param  string $term
-	 * @return collection
+	 * @return Collection
 	 */
 	public function getRestaurant($term)
 	{
@@ -83,7 +75,7 @@ class Users extends Model implements UsersInterface {
 	 * Set restaurant for client
 	 * 
 	 * @param  array $restaurant
-	 * @return this
+	 * @return $this
 	 */
 	public function setRestaurant(array $restaurant)
 	{
@@ -100,6 +92,7 @@ class Users extends Model implements UsersInterface {
 	 * Set template for current restaurant
 	 * 
 	 * @param array $template
+     * @return $this
 	 */
 	public function setTemplate(array $template)
 	{
@@ -115,19 +108,17 @@ class Users extends Model implements UsersInterface {
 	 * 
 	 * @param  mixed  $entity
 	 * @param  string $identifier
-	 * @return this
+	 * @return $this
 	 */
 	protected function toggleEntity($entity, $identifier)
 	{
-		$changeUser = $this->where(
-			$this->clientkeyOrRestaurantName($identifier)
-		, $identifier)->first();
+		$changeUser = $this->where($this->clientkeyOrRestaurantName($identifier), $identifier)
+            ->first();
 
-		$this->where(
-			$this->clientkeyOrRestaurantName($identifier)
-		, $identifier)->update([
-			$entity => $changeUser->{ $entity } == false ? true : false
-		]);		
+		$this->where($this->clientkeyOrRestaurantName($identifier), $identifier)
+            ->update([
+                $entity => $changeUser->{ $entity } == false ? true : false
+            ]);
 
 		return $this;
 	}
@@ -136,7 +127,7 @@ class Users extends Model implements UsersInterface {
 	 * Toggle popup for restaurant
 	 * 
 	 * @param  mixed $identifier
-	 * @return this
+	 * @return $this
 	 */
 	public function togglePopup($identifier = null)
 	{
@@ -148,7 +139,7 @@ class Users extends Model implements UsersInterface {
 	/**
 	 * Remove current client from restaruant
 	 * 
-	 * @return this
+	 * @return $this
 	 */
 	protected function removeClient()
 	{
@@ -172,7 +163,7 @@ class Users extends Model implements UsersInterface {
 	/**
 	 * Set required if non is set
 	 *
-	 * @return this
+	 * @return $this
 	 */
 	protected function setRequired()
 	{
@@ -187,13 +178,13 @@ class Users extends Model implements UsersInterface {
 	/**
 	 * Update database with defaults
 	 * 
-	 * @return this
+	 * @return $this
 	 */
 	protected function desireDefault()
 	{
-		$this->where('clientkey', $this->enviroment->get('default.clientkey'))->update([
+		$this->where('clientkey', getenv('default.clientkey'))->update([
 			'webURL' => $this->getClient(),
-			'webTemplateId' => $this->enviroment->get('default.template')
+			'webTemplateId' =>getenv('default.template')
 		]);
 
 		return $this;
@@ -206,7 +197,7 @@ class Users extends Model implements UsersInterface {
 	 */
 	public function getClient()
 	{
-		return $this->enviroment->get('default.client');	
+		return getenv('default.host');
 	}
 
 	/**

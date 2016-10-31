@@ -2,36 +2,27 @@
 
 namespace App\ProjectActor;
 
-use App\Config\Enviroment;
-
 class AbstractActor {
 
 	/**
-	 * @var Project/public/application/config/templates.php
+	 * @var string Project/public/application/config/templates.php
 	 */
 	protected $templateConfigurationPath;
 
 	/**
-	 * @var Project/.env.local.js
+	 * @var string Project/.env.local.js
 	 */
 	protected $templateEnviromentPath;
 
 	/**
-	 * @var Project/
+	 * @var string Project
 	 */
 	protected $projectPath;
 
-	/**
-	 * @var App\Config\Enviroment
-	 */
-	protected $enviroment;
-
 	public function __construct()
 	{
-		$this->enviroment = new Enviroment;
-
 		$this->setProjectPath(
-			$this->enviroment->get('templates.ro.se')
+			getenv('templates.ro.se')
 		);
 
 		$this->setTemplateConfigurationPath();

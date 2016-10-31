@@ -2,7 +2,6 @@
 
 namespace App\ProjectActor\TemplateConfiguration;
 
-use App\ProjectActor\TemplateConfiguration\TemplateConfigurationInterface;
 use Illuminate\Filesystem\Filesystem;
 use App\ProjectActor\AbstractActor;
 
@@ -125,7 +124,7 @@ class TemplateConfigurationActor extends AbstractActor implements TemplateConfig
 	 * 
 	 * @param  string $existingTemplate
 	 * @param  string $template
-	 * @return this
+	 * @return $this
 	 */
 	public function duplicate($existingTemplate, $template) {
 		$existingTemplate = $this->first($existingTemplate);

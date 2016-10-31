@@ -4,10 +4,6 @@ namespace App;
 
 use Symfony\Component\Console\Application as ConsoleApplication;
 
-use Symfony\Component\Console\Output\ConsoleOutput;
-
-use Exception;
-
 class Application {
 
 	/**
@@ -36,7 +32,7 @@ class Application {
 	];
 
 	/**
-	 * @var Symfony\Component\Console\Application
+	 * @var ConsoleApplication
 	 */
 	protected $consoleApplication;
 
@@ -59,7 +55,7 @@ class Application {
 	 * Instantiate and adds the console commands to 
 	 * the console application
 	 * 
-	 * @return this
+	 * @return $this
 	 */
 	protected function setupConsoleCommands()
 	{
@@ -74,23 +70,22 @@ class Application {
 	/**
 	 * Adding console commands is such a ugly task.
 	 * 
-	 * @param  array $commandClasses
 	 * @return array
 	 */
-	protected function commandClasses()
-	{
-		$consoleCommands = [];
+    protected function commandClasses()
+    {
+        $consoleCommands = [];
 
-		foreach ($this->commands as $globalCommand => $commands) 
-		{
-			foreach ($commands as $command) 
-			{
-				array_push($consoleCommands, 'App\Commands\\' . $globalCommand . 'Commands\\' . $globalCommand . $command);
-			}
-		}
+        foreach ($this->commands as $globalCommand => $commands)
+        {
+            foreach ($commands as $command)
+            {
+                array_push($consoleCommands, 'App\Commands\\' . $globalCommand . 'Commands\\' . $globalCommand . $command);
+            }
+        }
 
-		return $consoleCommands;
-	}
+        return $consoleCommands;
+    }
 
 	/**
 	 * Run the application

@@ -12,7 +12,7 @@ use App\Services\Project\ProjectService;
 class DuplicateTemplate extends DuplicateCommand {
 
 	/**
-	 * @var App\Services\Project\ProjectService
+	 * @var ProjectService
 	 */
 	protected $project;
 
@@ -34,9 +34,9 @@ class DuplicateTemplate extends DuplicateCommand {
 	protected function configure()
 	{
 		$this->setName('duplicate:template')
-			 ->setDescription('Duplicate current template')
-			 ->addArgument('existingTemplate', InputArgument::REQUIRED, 'Enter existing template name')
-			 ->addArgument('newTemplate', InputArgument::REQUIRED, 'Enter new template name');
+            ->setDescription('Duplicate current template')
+            ->addArgument('existingTemplate', InputArgument::REQUIRED, 'Enter existing template name')
+            ->addArgument('newTemplate', InputArgument::REQUIRED, 'Enter new template name');
 	}
 
 
@@ -44,7 +44,7 @@ class DuplicateTemplate extends DuplicateCommand {
 	 * Execute duplicate:template
 	 * 
 	 * @param  InputInterface  $input
-	 * @param  OutputInterface $outpu
+	 * @param  OutputInterface $output
 	 * @return void
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
@@ -60,11 +60,9 @@ class DuplicateTemplate extends DuplicateCommand {
 		);
 
 		$this->project->duplicateTemplate($results[$answer]['template'], $input->getArgument('newTemplate'))
-						->setTemplate(['name' => $input->getArgument('newTemplate')])
-						->grunt($input->getArgument('newTemplate'));
+            ->setTemplate(['name' => $input->getArgument('newTemplate')])
+            ->grunt($this->project->getTemplate($input->getArgument('newTemplate')));
 
-		$this->outputCurrentTable($output,
-			$this->project->current()
-		);
+		$this->outputCurrentTable($output, $this->project->current());
 	}
 }

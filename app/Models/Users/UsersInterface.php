@@ -2,13 +2,15 @@
 
 namespace App\Models\Users;
 
+use Illuminate\Database\Eloquent\Collection;
+
 interface UsersInterface {
 
 	/**
 	 * Set restaurant for client
 	 * 
 	 * @param  array $restaurant
-	 * @return this
+	 * @return $this
 	 */
 	public function setRestaurant(array $restaurant);
 
@@ -23,7 +25,7 @@ interface UsersInterface {
 	 * Get restaurants
 	 * 
 	 * @param  string $term
-	 * @return collection
+	 * @return Collection
 	 */
 	public function getRestaurants($term);
 
@@ -31,14 +33,14 @@ interface UsersInterface {
 	 * Get restaurant
 	 * 
 	 * @param  string $term
-	 * @return collection
+	 * @return Collection
 	 */
 	public function getRestaurant($term);
 
 	/**
 	 * Get current user
 	 * 
-	 * @return collection
+	 * @return Collection
 	 */
 	public function current();
 

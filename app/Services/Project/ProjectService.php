@@ -82,7 +82,7 @@ class ProjectService extends AbstractService {
 	 * Set template for current user in database
 	 * 
 	 * @param  array $template
-	 * @return this
+	 * @return $this
 	 */
 	public function setTemplate($template)
 	{
@@ -129,7 +129,7 @@ class ProjectService extends AbstractService {
 	 * Set restaurant for client
 	 * 
 	 * @param  array $restaurant
-	 * @return this
+	 * @return $this
 	 */
 	public function setRestaurant($restaurant)
 	{
@@ -144,7 +144,7 @@ class ProjectService extends AbstractService {
 	 * 
 	 * @param  string $existingTemplate
 	 * @param  string $template
-	 * @return this
+	 * @return $this
 	 */
 	public function duplicateTemplate($existingTemplate, $template)
 	{
@@ -203,7 +203,7 @@ class ProjectService extends AbstractService {
 	/**
 	 * Toggle feature popup for current restaurant
 	 * 
-	 * @return this
+	 * @return $this
 	 */
 	public function toggleCurrentPopup()
 	{
@@ -216,7 +216,7 @@ class ProjectService extends AbstractService {
 	 * Set template to grunt
 	 * 
 	 * @param  array $template
-	 * @return this
+	 * @return $this
 	 */
 	public function grunt($template)
 	{
