@@ -20,10 +20,10 @@ class Database {
 		
 		$capsule->addConnection([
 			'driver' 		=> 'mysql',
-			'host'	 		=> getenv('mysql.hostname'),
-			'database' 		=> getenv('mysql.database'),
-			'username' 		=> getenv('mysql.username'),
-			'password' 		=> getenv('mysql.password'),
+			'host'	 		=> getenv('database.hostname'),
+			'database' 		=> getenv('database.database'),
+			'username' 		=> getenv('database.username'),
+			'password' 		=> getenv('database.password'),
 			'charset'  		=> 'utf8',
 			'collation' 	=> 'utf8_unicode_ci',
 			'prefix' 		=> ''
