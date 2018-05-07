@@ -1,9 +1,6 @@
 <?php
 
-/**
- * Composers autoloader
- */
-require join(DIRECTORY_SEPARATOR, [__DIR__, 'vendor', 'autoload.php']);
+require __DIR__ . '/vendor/autoload.php';
 
 error_reporting(-1);
 
@@ -15,20 +12,6 @@ $dotenv->required([
     'database.password',
     'database.database'
 ]);
-
-set_error_handler(function($severity, $message, $file, $line)
-{
-    throw new \ErrorException($message, 0, $severity, $file, $line);
-});
-
-set_exception_handler(function(\Exception $exception)
-{
-    $output = new Symfony\Component\Console\Output\ConsoleOutput();
-
-    (new Symfony\Component\Console\Application())->renderException($exception, $output);
-    $output->writeln('<info>' . $exception->getFile() . ':' . $exception->getLine() . '</info>');
-    $output->writeln('');
-});
 
 $capsule = new Illuminate\Database\Capsule\Manager();
 $capsule->addConnection([

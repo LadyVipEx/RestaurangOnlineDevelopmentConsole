@@ -52,6 +52,12 @@ class SetTemplate extends SetCommand {
 			$input->getArgument('term')
 		);
 
+		if ($results === 'all') {
+            var_dump($this->project->allTemplates());
+            die();
+        }
+
+
 		$this->prependSelector()->outputTemplateTable($output, $results);
 
 		$answer = $this->getHelper('question')->ask($input, $output,
