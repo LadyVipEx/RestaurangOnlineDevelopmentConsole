@@ -3,11 +3,18 @@
 /**
  * Composers autoloader
  */
-require 'vendor/autoload.php';
+require join(DIRECTORY_SEPARATOR, [__DIR__, 'vendor', 'autoload.php']);
 
 error_reporting(-1);
 
-(new \Dotenv\Dotenv(__DIR__))->load();
+$dotenv = new \Dotenv\Dotenv(__DIR__);
+$dotenv->load();
+$dotenv->required([
+    'database.hostname',
+    'database.username',
+    'database.password',
+    'database.database'
+]);
 
 set_error_handler(function($severity, $message, $file, $line)
 {
@@ -22,3 +29,17 @@ set_exception_handler(function(\Exception $exception)
     $output->writeln('<info>' . $exception->getFile() . ':' . $exception->getLine() . '</info>');
     $output->writeln('');
 });
+
+$capsule = new Illuminate\Database\Capsule\Manager();
+$capsule->addConnection([
+    'driver' 		=> 'mysql',
+    'host'	 		=> getenv('database.hostname'),
+    'database' 		=> getenv('database.database'),
+    'username' 		=> getenv('database.username'),
+    'password' 		=> getenv('database.password'),
+    'charset'  		=> 'utf8',
+    'collation' 	=> 'utf8_unicode_ci',
+    'prefix' 		=> ''
+]);
+$capsule->setAsGlobal();
+$capsule->bootEloquent();

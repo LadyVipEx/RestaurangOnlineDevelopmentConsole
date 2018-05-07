@@ -27,13 +27,6 @@ class RoStatus extends Model {
      */
 	public $timestamps = false;
 
-	public function __construct()
-	{
-		parent::__construct();
-
-		(new Database)->setup();
-	}
-
 	/**
 	 * Get status table from client
 	 * 

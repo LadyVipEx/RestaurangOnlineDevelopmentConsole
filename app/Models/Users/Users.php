@@ -40,8 +40,6 @@ class Users extends Model implements UsersInterface {
 	{
 		parent::__construct();
 
-		(new Database)->setup();
-
 		$this->setRequired();
 	}
 

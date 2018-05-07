@@ -110,6 +110,10 @@ class EnvironmentConfigurationActor extends AbstractActor {
 		, true);
 	}
 
+    /**
+     * @param $configuration
+     * @return $this
+     */
 	public function setConfiguration($configuration)
 	{
 		$this->configuration = $configuration;

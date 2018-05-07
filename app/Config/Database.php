@@ -16,25 +16,6 @@ class Database {
 	 */
 	public function setup()
 	{
-		$capsule = new Capsule;
-		
-		$capsule->addConnection([
-			'driver' 		=> 'mysql',
-			'host'	 		=> getenv('database.hostname'),
-			'database' 		=> getenv('database.database'),
-			'username' 		=> getenv('database.username'),
-			'password' 		=> getenv('database.password'),
-			'charset'  		=> 'utf8',
-			'collation' 	=> 'utf8_unicode_ci',
-			'prefix' 		=> ''
-		]);
 
-		$capsule->setEventDispatcher(new Dispatcher(new Container));
-
-		$capsule->setAsGlobal();
-
-		$capsule->bootEloquent();
-
-		return $this;
 	}
 }
